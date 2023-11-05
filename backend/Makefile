@@ -7,7 +7,7 @@ freeze:
 install:
 	pip install -r requirements.txt
 run:
-	docker-compose up
+	docker-compose up --remove-orphans
 down:
 	docker-compose down
 build:

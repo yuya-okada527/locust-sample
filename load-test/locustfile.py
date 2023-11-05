@@ -1,3 +1,5 @@
+import subprocess
+
 from locust import HttpUser, task, constant_throughput, events
 import requests
 
@@ -10,8 +12,7 @@ class HelloWorldUser(HttpUser):
     return {"host": self.host}
 
   def on_start(self):
-    global TOKEN
-    TOKEN = self.client.get("/tokens").json()
+    refresh_token(self.host)
 
   @task
   def hello_world(self):
@@ -20,5 +21,14 @@ class HelloWorldUser(HttpUser):
   @events.request.add_listener
   def on_request(context, response, **kwargs):
     if response.status_code == 403:
-      global TOKEN
-      TOKEN = requests.get(f"{context['host']}/tokens").json()
+      refresh_token(context['host'])
+
+def refresh_token(host):
+  result = subprocess.run(
+    ["curl", f"{host}/tokens"],
+    stdout=subprocess.PIPE,
+    text=True
+  )
+  global TOKEN
+  print(result.stdout[1:-1])
+  TOKEN = result.stdout[1:-1]
