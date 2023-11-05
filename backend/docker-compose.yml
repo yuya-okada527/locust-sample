@@ -6,3 +6,5 @@ services:
       - "8000:80"
     volumes:
       - ./app:/code/app
+  cron:
+    build: docker/cron
